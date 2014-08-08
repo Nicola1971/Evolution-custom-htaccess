@@ -1,0 +1,83 @@
+# For full documentation and other suggested options, please see
+# http://rtfm.modx.com/evolution/1.0/administration/friendly-url-solutions
+# including for unexpected logouts in multi-server/cloud environments
+# and especially for the first three commented out rules
+
+# custom: first, block bad bots
+RewriteCond %{HTTP_USER_AGENT} libwww-perl.*
+RewriteRule .* - [F,L]
+
+RewriteCond %{QUERY_STRING} snippet\.reflect\.php [NC,OR]
+RewriteCond %{QUERY_STRING} reflect_base [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} ^libwww-perl [NC]
+RewriteRule .* - [F,L]
+
+# custom redirect microsoft shit bot
+RewriteCond %{QUERY_STRING} ^t=(.*)$ [NC,OR]
+RewriteCond %{QUERY_STRING} ^title=(.*)$ [NC]
+RewriteRule ^(.*)$ error.html [L]
+
+# custom: keep_out
+SetEnvIfNoCase User-Agent "Jakarta Commons" keep_out
+SetEnvIfNoCase User-Agent "Y!OASIS/TEST"    keep_out
+SetEnvIfNoCase User-Agent "libwww-perl"     keep_out
+SetEnvIfNoCase User-Agent "MOT-MPx220"      keep_out
+SetEnvIfNoCase User-Agent "MJ12bot"         keep_out
+SetEnvIfNoCase User-Agent "Nutch"           keep_out
+SetEnvIfNoCase User-Agent "cr4nk"           keep_out
+
+# custom: burp in response to malicious scripts
+RewriteCond %{QUERY_STRING} (.*)(http|https|ftp):\/\/(.*) [NC]
+RewriteRule ^(.*)$ 404-burp? [R,L]
+
+#php_flag register_globals Off
+AddDefaultCharset utf-8
+#php_value date.timezone Europe/Moscow
+
+#Options +FollowSymlinks
+RewriteEngine On
+RewriteBase /
+
+# Fix Apache internal dummy connections from breaking [(site_url)] cache
+RewriteCond %{HTTP_USER_AGENT} ^.*internal\ dummy\ connection.*$ [NC]
+RewriteRule .* - [F,L]
+
+# Rewrite domain.com -> www.domain.com -- used with SEO Strict URLs plugin
+#RewriteCond %{HTTP_HOST} !^$
+#RewriteCond %{HTTP_HOST} !^www\. [NC]
+#RewriteCond %{HTTP_HOST} (.+)$
+#RewriteRule ^(.*)$ http://www.%1/$1 [R=permanent,L] .
+
+# without www
+#RewriteCond %{HTTP_HOST} .
+#RewriteCond %{HTTP_HOST} !^example\.com [NC]
+#RewriteRule (.*) http://example.com/$1 [R=301,L]
+
+# without www  all domian
+#RewriteCond %{HTTP_HOST} .
+#RewriteCond %{HTTP_HOST} ^www.(.*)$ [NC]
+#RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
+# Exclude /assets and /manager directories and images from rewrite rules
+RewriteRule ^(manager|assets)/.*$ - [L]
+RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
+
+# For Friendly URLs
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
+
+# custom: Don't allow http, https and ftp as values for URL vars
+RewriteCond %{QUERY_STRING} (.*)(http|https|ftp):\/\/(.*) [NC,OR]
+RewriteCond %{QUERY_STRING} (.*)(reflect\.php|contact\.php)(.*) [NC,OR]
+RewriteCond %{QUERY_STRING} proc/self/environ [OR]
+RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+RewriteCond %{QUERY_STRING} base64_encode.*(.*) [OR]
+RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|[|\%[0-9A-Z]{0,2})
+RewriteRule ^(.*)$ /blackhole/index.php? [R,L]
+
+# Reduce server overhead by enabling output compression if supported.
+#php_flag zlib.output_compression On
+#php_value zlib.output_compression_level 5

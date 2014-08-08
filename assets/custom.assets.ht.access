@@ -1,0 +1,6 @@
+
+# Restrict access to .tpl and .php files in assets folder
+<filesmatch "\.(php|tpl)$"="">
+   Order allow,deny
+   Deny from all
+</filesmatch>
