@@ -26,3 +26,13 @@ Create a *.htaccess* file in *assets/tvs/multitv* with the content
    allow from all
 </filesmatch>
 ````
+
+###Easy2gallery 
+
+Create a *.htaccess* file in *assets/modules/easy2/includes/connector* with the content
+```
+<filesmatch connector.php>
+Order deny,allow
+allow from all
+</filesmatch>
+````
