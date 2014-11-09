@@ -13,16 +13,13 @@ SetEnvIfNoCase User-Agent "cr4nk"           keep_out
 
 #php_flag register_globals Off
 AddDefaultCharset utf-8
-#php_value date.timezone America/Los_Angeles
+#php_value date.timezone Europe/Moscow
 
 #Options +FollowSymlinks
-Options -Indexes
-DirectoryIndex index.php index\.htm$l
 RewriteEngine On
 RewriteBase /
 
 # Send 403 (FORBIDDEN) in response to malicious scripts
-RewriteCond %{QUERY_STRING} (.*)(http|https|ftp):\/\/(.*) [NC,OR]
 RewriteCond %{QUERY_STRING} (.*)(reflect\.php|contact\.php)(.*) [NC,OR]
 RewriteCond %{QUERY_STRING} proc/self/environ [OR]
 RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
@@ -30,6 +27,7 @@ RewriteCond %{QUERY_STRING} base64_encode.*(.*) [OR]
 RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
 RewriteCond %{QUERY_STRING} GLOBALS(=|[|\%[0-9A-Z]{0,2}) [OR]
 RewriteCond %{QUERY_STRING} _REQUEST(=|[|\%[0-9A-Z]{0,2}) [OR]
+
 # ms bots start
 RewriteCond %{QUERY_STRING} ^t=(.*)$ [NC,OR]
 RewriteCond %{QUERY_STRING} ^title=(.*)$ [NC,OR]
@@ -117,10 +115,10 @@ RewriteCond %{HTTP_USER_AGENT} ^.*internal\ dummy\ connection.*$ [NC]
 RewriteRule .* - [F,L]
 
 # Rewrite domain.com -> www.domain.com -- used with SEO Strict URLs plugin
-#RewriteCond %{HTTP_HOST} !^$
-#RewriteCond %{HTTP_HOST} !^www\. [NC]
-#RewriteCond %{HTTP_HOST} (.+)$
-#RewriteRule ^(.*)$ http://www.%1/$1 [R=permanent,L] .
+RewriteCond %{HTTP_HOST} !^$
+RewriteCond %{HTTP_HOST} !^www\. [NC]
+RewriteCond %{HTTP_HOST} (.+)$
+RewriteRule ^(.*)$ http://www.%1/$1 [R=permanent,L] .
 
 # without www
 #RewriteCond %{HTTP_HOST} .
